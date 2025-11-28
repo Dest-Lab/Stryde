@@ -41,17 +41,22 @@ pub fn parse_data() -> Vec<AppList> {
         // Get icon of the app in .desktop file
 
         if let EntryType::Application(app) = &desktop_file.entry.entry_type {
-            let exec = match &app.exec {
+            let mut exec = match &app.exec {
                 Some(exec) => exec.clone(),
                 None => continue,
             };
             // Get exec command of the app in .desktop file
 
+            for arg in ["%u", "%f", "%U", "%F", "%i", "%c", "%k"] {
+                exec = exec.replace(arg, "");
+            }
+            // Remove freedesktop exec placeholders
+
             apps_info.push(
                 AppList {
                     name: name,
                     description: description.unwrap_or_default().default,
-                    exec: exec.clone(),
+                    exec: exec,
                     icon_path: icon.unwrap_or_default().content.into(),
                     type_file: "Application".to_string()
                 }
