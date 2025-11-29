@@ -2,9 +2,8 @@ use std::path::PathBuf;
 
 use iced::{Background, Border, Color, Length, Pixels, Shadow, Theme, widget::{Button, Row, button, image, row, svg, text}};
 
-use crate::ui::app::Message;
+use crate::{core::apps::utils::resize_icon, ui::app::Message};
 
-#[warn(unused)]
 pub fn list_apps(
     name: String,
     _exec: String,
@@ -22,8 +21,8 @@ pub fn list_apps(
         if ext == "svg" {
             content = row![
                 svg(path)
-                    .width(32)
-                    .height(32),
+                    .width(40)
+                    .height(40),
                 text(name)
             ]
             .spacing(10)
@@ -31,10 +30,11 @@ pub fn list_apps(
         // If icon is svg, i show with svg widget
         } else {
             // If icon is not svg, use image widget
+            let img = resize_icon(path.as_path().to_str().unwrap_or_default(), 40);
             content = row![
-                image(path)
-                    .width(32)
-                    .height(32),
+                image(img)
+                    .width(40)
+                    .height(40),
                 text(name)
             ].spacing(10).align_y(iced::Alignment::Center);
         };

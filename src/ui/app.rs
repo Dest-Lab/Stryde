@@ -1,4 +1,4 @@
-use iced::{Color, Element, Pixels, Settings, Size, Task, Theme, theme::Palette, widget::Column, window::{self, settings::PlatformSpecific}};
+use iced::{Color, Element, Padding, Pixels, Settings, Size, Task, Theme, theme::Palette, widget::Column, window::{self, settings::PlatformSpecific}};
 
 use crate::{core::apps::model::AppList, ui::widgets::{list_apps::list_apps, text_input::input_box}};
 
@@ -87,7 +87,14 @@ impl FluxUI {
         }
     }
     fn view(&self) -> iced::Element<'_, Message> {
-        let mut list_column = Column::new().spacing(5);
+        let mut list_column = Column::new().spacing(5).padding(
+            Padding {
+                top: 0.0,
+                left: 0.0,
+                right: 0.0,
+                bottom: 10.0
+            }
+        );
 
         for entry in &self.app_list {
             list_column = list_column.push(Element::from(list_apps(entry.name.clone(), entry.exec.clone(), Some(entry.icon_path.clone()))))

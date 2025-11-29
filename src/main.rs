@@ -5,5 +5,8 @@ mod ui;
 fn main() -> iced::Result
 {
     let apps = indexing().unwrap_or_default();
+    // for entry in &apps {
+    //     println!("App name: {}, icon path: {:?}", entry.name, entry.icon_path);
+    // }
     run_ui(apps)
 }
