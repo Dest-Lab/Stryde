@@ -19,7 +19,7 @@ pub fn input_box<'a>(
             // input box on top
             TextInput::new("Type a command or search...", text)
                 .on_input(Message::SearchChanged)
-                // .on_submit(Message::Submit)
+                .on_submit(Message::Submit)
                 .size(18)
                 .id("input")
                 .style(move |theme: &Theme, _| {

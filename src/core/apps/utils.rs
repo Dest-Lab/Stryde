@@ -1,8 +1,28 @@
 use std::{fs, path::{Path, PathBuf}, time::UNIX_EPOCH};
 
 use freedesktop_icons::lookup;
-use iced::widget;
+use iced::{Task, widget, window};
 use image::ImageReader;
+
+use crate::{ui::app::{ Message}};
+
+pub fn open_app(entry_exec: String) -> Task<Message> {
+    let exec = entry_exec.clone();
+    let path = std::path::Path::new(&exec);
+    if path.exists() && path.is_file() {
+        // If file exists, try run it
+        if let Err(e) = std::process::Command::new(path).spawn() {
+            println!("Failed to open {:?}: {}",path, e);
+            // Print error is cannot open
+        }
+    } else {
+        if let Err(e) = std::process::Command::new("sh").arg("-c").arg(&exec).spawn() {
+           println!("Failed to open {:?}: {}", path, e);
+            // Print error is cannot open 
+        }
+    }
+    window::get_latest().and_then(window::close)
+}
 
 pub fn last_modified(path: &Path) -> Option<u64> {
     let metadata = fs::metadata(path).ok()?;
