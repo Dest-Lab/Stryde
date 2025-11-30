@@ -56,10 +56,10 @@ pub fn list_apps(
             .height(50)
             .style(
                 move |_theme: &Theme, _status: button::Status| button::Style {
-                    // button bg is dark gray
+                    // button bg from theme
                     background: Some(Background::Color(theme.palette().background)),
-                    // text is white
-                    text_color: Color::WHITE,
+                    // text from theme
+                    text_color: theme.palette().text,
                     // border no color and small round
                     border: Border {
                         color: Color::TRANSPARENT,

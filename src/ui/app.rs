@@ -160,6 +160,6 @@ impl FluxUI {
         } // Make a list with all apps
         
         input_with_list(list_column, &self.text, &self.theme())
-        // Make a input_text
+        // Make a input, divider, list
     }
 }
