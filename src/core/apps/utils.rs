@@ -1,7 +1,7 @@
 use std::{fs, path::{Path, PathBuf}, time::UNIX_EPOCH};
 
 use freedesktop_icons::lookup;
-use iced::{Task, widget, window::{self}};
+use iced::{Task, futures::future::ok, widget, window::{self}};
 use image::ImageReader;
 
 use crate::{ui::app::{ Message}};
@@ -64,16 +64,16 @@ pub fn get_icon_path(icon_name: &str) -> Option<PathBuf> {
     lookup("application-x-executable").with_size(48).find()
 }
 
-pub fn resize_icon(path: &str, size: u32) -> iced::widget::image::Handle {
+pub fn resize_icon(path: &str, size: u32) -> Option<iced::widget::image::Handle> {
     let img = ImageReader::open(path)
-        .unwrap()
+        .ok()?
         .decode()
-        .unwrap_or_default()
+        .ok()?
         .to_rgba8();
 
     let resized = image::imageops::resize(&img, size, size, image::imageops::FilterType::Lanczos3);
 
-    widget::image::Handle::from_rgba(resized.width(), resized.height(), resized.into_raw())
+    Some(widget::image::Handle::from_rgba(resized.width(), resized.height(), resized.into_raw()))
 }
 
 pub fn flatpak_apps() -> Option<Vec<PathBuf>> {

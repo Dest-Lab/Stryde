@@ -21,6 +21,7 @@ pub fn run_ui(apps: Vec<AppList>) -> iced::Result{
             override_redirect: false,
         },
         exit_on_close_request: true,
+        transparent: true,
         // close window = exit program
         ..Default::default()
     };

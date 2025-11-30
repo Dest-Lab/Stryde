@@ -30,13 +30,15 @@ pub fn list_apps(
         // If icon is svg, i show with svg widget
         } else {
             // If icon is not svg, use image widget
-            let img = resize_icon(path.as_path().to_str().unwrap_or_default(), 40);
-            _content = row![
-                image(img)
+            if let Some(img) = resize_icon(path.as_path().to_str().unwrap_or_default(), 40){      
+                _content = row![image(img)
                     .width(40)
                     .height(40),
                 text(name)
             ].spacing(10).align_y(iced::Alignment::Center);
+            }else {
+                _content = row![text(name)].align_y(iced::Alignment::Center);
+            }
         };
 
     } else {
