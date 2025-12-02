@@ -3228,7 +3228,7 @@ dependencies = [
 
 [[package]]
 name = "stryde"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bincode",
  "dirs 6.0.0",

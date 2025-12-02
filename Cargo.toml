@@ -1,6 +1,6 @@
 [package]
 name = "stryde"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
@@ -11,3 +11,10 @@ bincode = "1.3.3"
 serde = {version = "1.0.228", features = ["derive"]}
 iced = {version = "0.13.1", default-features = false, features = ["tiny-skia", "image", "svg"]}
 image = "0.25.9"
+
+[package.metadata.packager]
+before-packaging-command = "cargo build --release"
+product-name = "Stryde"
+identifier = "com.dest.stryde"
+version = "0.1.1"
+

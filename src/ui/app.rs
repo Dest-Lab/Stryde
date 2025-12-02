@@ -94,11 +94,11 @@ impl StrydeUI {
         Theme::custom(
             "Dark".to_string(),
             Palette {
-                background: Color::from_rgb(41.0/255.0, 44.0/255.0, 60.0/255.0),
-                text: Color::from_rgb(198.0/255.0, 208.0/255.0, 245.0/255.0),
-                primary: Color::from_rgb(140.0/255.0, 170.0/255.0, 238.0/255.0),
-                success: Color::from_rgb(115.0/255.0, 121.0/255.0, 148.0/255.0),
-                danger: Color::from_rgb(65.0/255.0, 69.0/255.0, 89.0/255.0),
+                background: Color::from_rgb(0.063, 0.063, 0.071),
+                text: Color::WHITE,
+                primary: Color::from_rgb(0.055, 0.122, 0.165),
+                success: Color::from_rgb(0.306, 0.306, 0.318), // This is for divider or placeholder,
+                danger: Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0), // This is for selected app,
             },
         )
     }
