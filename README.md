@@ -38,3 +38,6 @@ https://github.com/user-attachments/assets/aad6b820-e6b1-49e1-b874-d70e22b473e7
 3. Open time ~0.1-0.2s
 
 4. Supported Display Protocols: Wayland, X11
+
+
+### **Documentation:** [Stryde Docs](https://dest-lab.github.io/stryde-docs)
