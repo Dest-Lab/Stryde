@@ -1,40 +1,38 @@
-use std::path::PathBuf;
-
 use iced::{Alignment, Background, Border, Color, Length, Pixels, Shadow, Theme, widget::{Button, Row, button, image, row, svg, text}};
 
-use crate::{core::apps::utils::resize_icon, ui::app::Message};
+use crate::{core::apps::{model::Handler}, ui::app::Message};
 
 pub fn list_apps(
     name: String,
     _exec: String,
-    icon: Option<PathBuf>,
     theme: Theme,
     selected: bool,
-    icon_size: u16
+    handlers: Handler,
+    icon_size: u16,
 ) -> iced::widget::Button<'static, Message> {
     let mut _content: Row<'_, Message> = Row::new();
 
-    if !icon.is_none() {
+    if !handlers.image_handler.is_none() || !handlers.svg_handler.is_none() {
         // If icon exists, i show it
-        let path = icon.as_ref().expect("");
-
-        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-        // Get icon extension like svg or png
-
-        if ext == "svg" {
-            _content = row![
-                svg(path)
-                    .width(icon_size)
-                    .height(icon_size),
-                text(name)
-            ]
-            .spacing(10)
-            .align_y(iced::Alignment::Center);
-        // If icon is svg, i show with svg widget
+        if !handlers.svg_handler.is_none() {
+            if let Some(svg_handle) = handlers.svg_handler.as_ref() {
+                _content = row![
+                    svg(svg_handle.clone())
+                        .width(icon_size)
+                        .height(icon_size),
+                    text(name)
+                ]
+                .spacing(10)
+                .align_y(iced::Alignment::Center);
+            }
+            else {
+                _content = row![text(name)];
+            }
+            // If icon is svg, i show with svg widget
         } else {
             // If icon is not svg, use image widget
-            if let Some(img) = resize_icon(path.as_path().to_str().unwrap_or_default(), icon_size.into()){      
-                _content = row![image(img)
+            if let Some(img_handle) = handlers.image_handler.as_ref() {      
+                _content = row![image(img_handle)
                     .width(icon_size)
                     .height(icon_size),
                 text(name)

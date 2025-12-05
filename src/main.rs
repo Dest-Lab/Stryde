@@ -1,5 +1,7 @@
 mod core;
-use crate::{core::apps::indexer::indexing, toml_files::{Config, read_theme, settings}, ui::app::run_ui};
+use std::{collections::HashMap, path::PathBuf};
+
+use crate::{core::apps::{indexer::indexing, model::Handler, utils::resize_icon}, toml_files::{Config, read_theme, settings}, ui::app::run_ui};
 mod ui;
 mod toml_files;
 fn main() -> iced::Result
@@ -18,6 +20,20 @@ fn main() -> iced::Result
             close_on_launch: true
         }
     );
+    let mut icons: HashMap<PathBuf, Handler> = HashMap::new();
+    for entry in &apps {
+        let ext = entry.icon_path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        // Get icon extension like svg or png
+
+        if ext == "svg" {
+            let svg_handler = iced::widget::svg::Handle::from_path(entry.icon_path.clone());
+            icons.insert(entry.icon_path.clone(), Handler { image_handler: None, svg_handler: Some(svg_handler) });
+        }else {
+            if let Some(img) = resize_icon(entry.icon_path.as_path().to_str().unwrap_or_default(), config.icon_size.into()) {
+                icons.insert(entry.icon_path.clone(), Handler { image_handler: Some(img), svg_handler: None });
+            }
+        }
+    }
     // Get settings if get any errors put the default one
     let theme = read_theme(&config.using).unwrap_or(
         iced::Theme::custom(
@@ -32,5 +48,5 @@ fn main() -> iced::Result
         )
     );
     // Get theme if get any errors put the default one
-    run_ui(apps, config, theme)
+    run_ui(apps, config, theme, icons)
 }

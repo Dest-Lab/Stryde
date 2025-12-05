@@ -1,8 +1,10 @@
+use std::{collections::HashMap, path::PathBuf};
+
 use iced::{Element, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key, key::Named}, theme::Palette, widget::{Column, scrollable::{self, AbsoluteOffset, Id}, text_input}, window::{self, settings::PlatformSpecific}};
 
-use crate::{core::apps::{model::AppList, utils::open_app}, toml_files::Config, ui::widgets::{input_with_list::input_with_list, list_apps::list_apps}};
+use crate::{core::apps::{model::{AppList, Handler}, utils::open_app}, toml_files::Config, ui::widgets::{input_with_list::input_with_list, list_apps::list_apps}};
 
-pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme) -> iced::Result{
+pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: HashMap<PathBuf, Handler>) -> iced::Result{
     let window = window::Settings {
         size: Size {
             width: settings.app_width,
@@ -41,7 +43,7 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme) -> iced::Resul
     .theme(StrydeUI::theme)
     .subscription(StrydeUI::subscription)
     .run_with(move || {
-        let stryde = StrydeUI::new(apps, theme, settings);
+        let stryde = StrydeUI::new(apps, theme, settings, handlers);
 
         let focus_task = text_input::focus::<Message>("input");
         // Auto focus to input_text
@@ -68,22 +70,22 @@ pub enum Message {
 pub struct StrydeUI {
     text: String,
     app_list: Vec<AppList>,
-    save_list: Vec<AppList>,
     selected: usize,
     theme: Theme,
     config: Config,
+    handlers: HashMap<PathBuf, Handler>,
 }
 
 impl StrydeUI {
-    fn new(app_list: Vec<AppList>, theme: Theme, config: Config) -> Self {
+    fn new(app_list: Vec<AppList>, theme: Theme, config: Config, handlers: HashMap<PathBuf, Handler>) -> Self {
         // make new app state with list of apps
         Self {
             text: "".into(),
-            save_list: Vec::new(),
             app_list,
             selected: 0,
             theme: theme,
-            config: config
+            config: config,
+            handlers: handlers
         }
     }
 
@@ -115,25 +117,7 @@ impl StrydeUI {
     fn update(&mut self, message: Message) -> Task<Message>{
         match message {
             Message::SearchChanged(text) => {
-                if !self.save_list.is_empty() {
-                    self.app_list = self.save_list.clone();
-                } // If save list is not empty load the save
                 self.text = text;
-                // Change the text_input text
-                self.save_list = self.app_list.clone();
-                // Save the current app list
-
-                let mut new_list = Vec::new();
-                // Make a empty list
-
-                for entry in &self.app_list {
-                    if entry.name.to_lowercase().contains(&self.text.trim().to_lowercase()) {
-                        new_list.push(entry.to_owned());
-                    }
-                } // Push in list every app that contains input_text text
-
-                self.app_list = new_list;
-
                 if self.selected != 0 {
                     self.selected = 0;
                     return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset { x: 0.0, y: 0.0 });
@@ -145,7 +129,12 @@ impl StrydeUI {
                     open_app(entry_exec, close_after_launch)
             }
             Message::Submit => {
-                open_app(self.app_list[self.selected].exec.clone(), self.config.close_on_launch)
+
+                let filtered: Vec<&AppList> = self.app_list.iter().filter(|app| {
+                    app.name.to_lowercase().contains(&self.text.to_lowercase())
+                }).collect();
+
+                open_app(filtered[self.selected].exec.clone(), self.config.close_on_launch)
             }
             Message::KeyEvent(key) => {
                 match key {
@@ -188,15 +177,19 @@ impl StrydeUI {
             }
         );
 
-        for (index, entry) in self.app_list.iter().enumerate() {
+        let filtered = self.app_list.iter().filter(|app| {
+                app.name.to_lowercase().contains(&self.text.to_lowercase())
+        });
+
+        for (index, entry) in filtered.enumerate() {
             list_column = list_column.push(
                 Element::from(
                     list_apps(
                         entry.name.clone(),
                          entry.exec.clone(),
-                          Some(entry.icon_path.clone()),
                           self.theme().clone(),
                           self.selected == index,
+                          self.handlers.get(&entry.icon_path).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
                           self.config.icon_size
                         ).on_press(Message::Open(entry.exec.clone(), self.config.close_on_launch))))
         } // Make a list with all apps

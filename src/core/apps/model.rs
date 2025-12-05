@@ -9,6 +9,12 @@ pub struct AppList {
     pub type_file: String,
 }
 
+#[derive(Clone)]
+pub struct Handler {
+    pub image_handler: Option<iced::widget::image::Handle>,
+    pub svg_handler: Option<iced::widget::svg::Handle>,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CacheFile {
     pub hash: u64,

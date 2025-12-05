@@ -3,8 +3,8 @@ use std::{fs, path::{Path, PathBuf}};
 use crate::core::apps::{model::{AppList, CacheFile}, parser::parse_data, utils::last_modified};
 
 pub fn indexing() -> Option<Vec<AppList>> {
-    let cache_dir = dirs::cache_dir()?.join("flux");
-    // Get path to flux cache
+    let cache_dir = dirs::cache_dir()?.join("stryde");
+    // Get path to stryde cache
     let cache_path = cache_dir.join("cache.bin");
 
     if fs::metadata(&cache_dir).is_err() {
