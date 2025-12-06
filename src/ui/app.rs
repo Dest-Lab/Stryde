@@ -1,10 +1,16 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use iced::{Element, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key, key::Named}, theme::Palette, widget::{Column, scrollable::{self, AbsoluteOffset, Id}, text_input}, window::{self, settings::PlatformSpecific}};
+use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key, key::Named}, theme::Palette, widget::{Column, scrollable::{self, AbsoluteOffset, Id}, text_input}, window::{self, settings::PlatformSpecific}};
 
 use crate::{core::apps::{model::{AppList, Handler}, utils::open_app}, toml_files::Config, ui::widgets::{input_with_list::input_with_list, list_apps::list_apps}};
 
-pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: HashMap<PathBuf, Handler>) -> iced::Result{
+pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: HashMap<PathBuf, Handler>,) -> iced::Result{
+    let font_name = if !settings.font_name.is_empty() {
+        Box::leak(settings.font_name.clone().into_boxed_str())
+        // 0.03-0.05 KB memory leak :(
+    }else {
+        "" // Use default font and no memory leak :)
+    };
     let window = window::Settings {
         size: Size {
             width: settings.app_width,
@@ -37,8 +43,12 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         antialiasing: settings.antialiasing,
         // simple text render
         fonts: vec![],
-        default_font: Default::default(),
-    })
+        default_font: Font {
+                family: iced::font::Family::Name(font_name),
+                weight: iced::font::Weight::Normal,
+                stretch: iced::font::Stretch::Normal,
+                style: iced::font::Style::Normal,
+    }})
     .window(window)
     .theme(StrydeUI::theme)
     .subscription(StrydeUI::subscription)

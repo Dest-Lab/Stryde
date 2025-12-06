@@ -9,7 +9,7 @@ fn main() -> iced::Result
     let apps = indexing().unwrap_or_default();
     let config: Config = settings().unwrap_or(
         Config {
-            using: "Stryde-Dark".to_string(),
+            theme: "Stryde-Dark".to_string(),
             antialiasing: false,
             list_text_size: 16,
             input_text_size: 18,
@@ -17,7 +17,8 @@ fn main() -> iced::Result
             app_height: 500.0,
             icon_size: 37,
             show_apps: true,
-            close_on_launch: true
+            close_on_launch: true,
+            font_name: "".into()
         }
     );
     let mut icons: HashMap<PathBuf, Handler> = HashMap::new();
@@ -35,7 +36,7 @@ fn main() -> iced::Result
         }
     }
     // Get settings if get any errors put the default one
-    let theme = read_theme(&config.using).unwrap_or(
+    let theme = read_theme(&config.theme).unwrap_or(
         iced::Theme::custom(
             "Stryde-Dark".to_string(),
             iced::theme::Palette {

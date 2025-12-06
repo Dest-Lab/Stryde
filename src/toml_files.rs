@@ -6,7 +6,7 @@ use toml::{from_str, to_string};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Config {
-    pub using: String,
+    pub theme: String,
     pub antialiasing: bool,
     pub list_text_size: u16,
     pub input_text_size: u16,
@@ -15,6 +15,7 @@ pub struct Config {
     pub icon_size: u16,
     pub show_apps: bool,
     pub close_on_launch: bool,
+    pub font_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,7 +41,7 @@ pub fn settings() -> Option<Config>{
     if !config_path.exists() {
         // If config file doesn't exists
         let config = Config {
-            using: "Stryde-Dark".into(),
+            theme: "Stryde-Dark".into(),
             antialiasing: false,
             list_text_size: 16,
             input_text_size: 18,
@@ -49,6 +50,7 @@ pub fn settings() -> Option<Config>{
             icon_size: 37,
             show_apps: true,
             close_on_launch: true,
+            font_name: " ".into()
         };
         // Default settings
 
