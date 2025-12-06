@@ -31,4 +31,3 @@ Application launcher for Linux written in Rust
 * **Lightweight** - ~35 MB Ram usage
 * **Binary Size** - 16 MB
 * **Wayland & X11 Support**
-* **Written in Rust**
