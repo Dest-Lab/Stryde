@@ -13,8 +13,8 @@ Application launcher for Linux written in Rust
 <a href="https://github.com/dest-lab/stryde">
   <img src="https://github.com/user-attachments/assets/179d74da-6835-4451-be10-60785ebcf910" width="410px">
 </a>
-<a href="https://github.com/dest-lab/stryde">
-  <img src="https://github.com/user-attachments/assets/27f7be87-1902-4e17-a430-0d21ef01e1de" width="410px">
+<a href="https://github.com/mxghj/catppuccin-stryde">
+  <img width="410" alt="catppuccin" src="https://github.com/user-attachments/assets/01b1d4f4-2491-48a5-8dc5-476c57478ee7" />
 </a>
 
 </div>
