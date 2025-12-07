@@ -48,7 +48,7 @@ fn main() -> iced::Result
             iced::theme::Palette {
                 background: iced::Color::from_rgb(0.063, 0.063, 0.071),
                 text: iced::Color::WHITE,
-                primary: iced::Color::from_rgb(0.055, 0.122, 0.165),
+                primary: iced::Color::from_rgb(137.0/255.0, 180.0/255.0, 250.0/255.0),
                 success: iced::Color::from_rgb(0.306, 0.306, 0.318),
                 danger: iced::Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0),
             },

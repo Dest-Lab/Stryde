@@ -125,7 +125,7 @@ pub fn read_theme(using_theme: &str) -> Option<iced::Theme>{
             Palette {
                 background: Color::from_rgb(0.063, 0.063, 0.071),
                 text: Color::WHITE,
-                primary: Color::from_rgb(0.055, 0.122, 0.165),
+                primary: Color::parse("89b4fa")?,
                 success: Color::from_rgb(0.306, 0.306, 0.318),
                 danger: Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0),
             },
