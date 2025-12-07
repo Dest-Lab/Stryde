@@ -155,7 +155,7 @@ impl StrydeUI {
                             self.selected += 1;
                             return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
-                                y: self.selected as f32 * 55.0
+                                y: self.selected as f32 * (50.0 + self.config.spacing as f32)
                             });
                         }
                         Task::none()
@@ -166,7 +166,7 @@ impl StrydeUI {
                             self.selected -= 1;
                             return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
-                                y:  self.selected as f32 * 55.0
+                                y:  self.selected as f32 * (50.0 + self.config.spacing as f32)
                             });
                         }
                         Task::none()
