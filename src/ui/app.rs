@@ -178,12 +178,12 @@ impl StrydeUI {
         }
     }
     fn view(&self) -> iced::Element<'_, Message> {
-        let mut list_column = Column::new().spacing(5).padding(
+        let mut list_column = Column::new().spacing(self.config.spacing).padding(
             Padding {
-                top: 0.0,
+                top: self.config.padding_vertical,
                 left: 0.0,
                 right: 0.0,
-                bottom: 10.0
+                bottom: self.config.padding_vertical
             }
         );
 
@@ -199,12 +199,13 @@ impl StrydeUI {
                          entry.exec.clone(),
                           self.theme().clone(),
                           self.selected == index,
+                          self.config.highlight_style_text,
                           self.handlers.get(&entry.icon_path).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
-                          self.config.icon_size
+                          self.config.icon_size,
                         ).on_press(Message::Open(entry.exec.clone(), self.config.close_on_launch, self.config.default_terminal.clone(), entry.terminal.clone()))))
         } // Make a list with all apps
         
-        input_with_list(list_column, &self.text, &self.theme(), self.config.input_text_size, self.config.show_apps)
+        input_with_list(list_column, &self.text, &self.theme(), &self.config)
         // Make a input, divider, list
     }
 }

@@ -19,7 +19,12 @@ fn main() -> iced::Result
             show_apps: true,
             close_on_launch: true,
             font_name: "".into(),
-            default_terminal: "kitty".into()
+            placeholder: "Type commands, search...".into(),
+            default_terminal: "kitty".into(),
+            highlight_style_text: false,
+            divider: true,
+            padding_vertical: 0.0,
+            spacing: 5
         }
     );
     let mut icons: HashMap<PathBuf, Handler> = HashMap::new();

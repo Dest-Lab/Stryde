@@ -8,15 +8,20 @@ use toml::{from_str, to_string};
 pub struct Config {
     pub theme: String,
     pub antialiasing: bool,
-    pub list_text_size: u16,
-    pub input_text_size: u16,
+    pub font_name: String,
+    pub placeholder: String,
     pub app_width: f32,
     pub app_height: f32,
+    pub list_text_size: u16,
+    pub input_text_size: u16,
     pub icon_size: u16,
+    pub padding_vertical: f32,
+    pub spacing: u16,
+    pub highlight_style_text: bool,
+    pub divider: bool,
     pub show_apps: bool,
     pub close_on_launch: bool,
-    pub font_name: String,
-    pub default_terminal: String
+    pub default_terminal: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -52,7 +57,12 @@ pub fn settings() -> Option<Config>{
             show_apps: true,
             close_on_launch: true,
             font_name: " ".into(),
-            default_terminal: "kitty".into()
+            placeholder: "Type commands, search...".into(),
+            default_terminal: "kitty".into(),
+            highlight_style_text: false,
+            divider: true,
+            padding_vertical: 0.0,
+            spacing: 5
         };
         // Default settings
 

@@ -7,6 +7,7 @@ pub fn list_apps(
     _exec: String,
     theme: Theme,
     selected: bool,
+    highlight_text: bool,
     handlers: Handler,
     icon_size: u16,
 ) -> iced::widget::Button<'static, Message> {
@@ -45,10 +46,16 @@ pub fn list_apps(
     } else {
         _content = row![text(name)];
     }
-    let bg_color = if selected == true {
-        theme.palette().danger
+    let palette = theme.palette();
+    let bg_color = if selected && !highlight_text {
+        palette.danger
     }else {
-        theme.palette().background
+        palette.background
+    };
+    let text_color = if selected && highlight_text {
+        palette.primary
+    }else {
+        palette.text
     };
     Button::new(_content.align_y(Alignment::Center))
             .padding(iced::Padding {
@@ -64,7 +71,7 @@ pub fn list_apps(
                     // button bg from theme
                     background: Some(Background::Color(bg_color)),
                     // text from theme
-                    text_color: theme.palette().text,
+                    text_color: text_color,
                     // border no color and small round
                     border: Border {
                         color: Color::TRANSPARENT,

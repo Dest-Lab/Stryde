@@ -5,30 +5,40 @@ use iced::{
     }
 };
 
-use crate::ui::app::Message;
+use crate::{toml_files::Config, ui::app::Message};
 
 pub fn input_with_list<'a>(
     list_column: Column<'a, Message>,
     text: &str,
     theme: &Theme,
-    input_text_size: u16,
-    show_apps: bool
+    config: &Config,
 ) -> iced::Element<'a, Message> {
 
-    let list_column = if show_apps == false && text.is_empty() {
+    let list_column = if config.show_apps == false && text.is_empty() {
        Column::new()
     }else {
         list_column
     };
 
     let palette = theme.palette();
+    let placeholder: &String = if config.placeholder.is_empty() {
+        &"Type commands, search...".to_string()
+    } else {
+        &config.placeholder
+    };
+
+    let divider_size: u16 = if config.divider {
+        1
+    }else {
+        0
+    };
 
     container(column![
             // input box on top
-            TextInput::new("Type commands, search...", text)
+            TextInput::new(placeholder, text)
                 .on_input(Message::SearchChanged)
                 .on_submit(Message::Submit)
-                .size(input_text_size)
+                .size(config.input_text_size)
                 .id("input")
                 .style(move |theme: &Theme, _| {
                     // custom style for input
@@ -53,9 +63,9 @@ pub fn input_with_list<'a>(
                     left: 30.0,
                 }),
             // thin line under search
-            Rule::horizontal(1).style(|_theme: &Theme| Style {
+            Rule::horizontal(divider_size).style(move |_theme: &Theme| Style {
                 color: _theme.palette().success,
-                width: 1,
+                width: divider_size,
                 radius: iced::border::Radius::new(iced::Pixels(0.0)),
                 fill_mode: FillMode::Full,
             }),
