@@ -7,6 +7,7 @@ pub struct AppList {
     pub exec: String,
     pub icon_path: std::path::PathBuf,
     pub type_file: String,
+    pub terminal: bool
 }
 
 #[derive(Clone)]

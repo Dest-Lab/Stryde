@@ -18,7 +18,8 @@ fn main() -> iced::Result
             icon_size: 37,
             show_apps: true,
             close_on_launch: true,
-            font_name: "".into()
+            font_name: "".into(),
+            default_terminal: "kitty".into()
         }
     );
     let mut icons: HashMap<PathBuf, Handler> = HashMap::new();

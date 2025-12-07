@@ -16,6 +16,7 @@ pub struct Config {
     pub show_apps: bool,
     pub close_on_launch: bool,
     pub font_name: String,
+    pub default_terminal: String
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,7 +51,8 @@ pub fn settings() -> Option<Config>{
             icon_size: 37,
             show_apps: true,
             close_on_launch: true,
-            font_name: " ".into()
+            font_name: " ".into(),
+            default_terminal: "kitty".into()
         };
         // Default settings
 

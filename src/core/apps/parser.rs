@@ -41,10 +41,15 @@ pub fn parse_data() -> Vec<AppList> {
 
         let icon_path = get_icon_path(&icon_name);
 
+
         if let EntryType::Application(app) = &desktop_file.entry.entry_type {
             let mut exec = match &app.exec {
                 Some(exec) => exec.clone(),
                 None => continue,
+            };
+            let terminal = match &app.terminal {
+                Some(terminal) => terminal.clone(),
+                None => continue
             };
             // Get exec command of the app in .desktop file
 
@@ -59,7 +64,8 @@ pub fn parse_data() -> Vec<AppList> {
                     description: description.unwrap_or_default().default,
                     exec: exec,
                     icon_path: icon_path.unwrap_or_default(),
-                    type_file: "Application".to_string()
+                    type_file: "Application".to_string(),
+                    terminal: terminal
                 }
             );
             // Push app in list of apps

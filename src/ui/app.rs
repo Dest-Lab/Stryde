@@ -72,7 +72,7 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
 pub enum Message {
     SearchChanged(String),
     Submit,
-    Open(String, bool),
+    Open(String, bool, String, bool),
     KeyEvent(Key)
 }
 
@@ -135,8 +135,8 @@ impl StrydeUI {
                     return Task::none();
                 
             }
-            Message::Open(entry_exec, close_after_launch) => {
-                    open_app(entry_exec, close_after_launch)
+            Message::Open(entry_exec, close_after_launch, default_terminal, terminal) => {
+                    open_app(entry_exec, close_after_launch, default_terminal, terminal)
             }
             Message::Submit => {
 
@@ -144,7 +144,7 @@ impl StrydeUI {
                     app.name.to_lowercase().contains(&self.text.to_lowercase())
                 }).collect();
 
-                open_app(filtered[self.selected].exec.clone(), self.config.close_on_launch)
+                open_app(filtered[self.selected].exec.clone(), self.config.close_on_launch, self.config.default_terminal.clone(), filtered[self.selected].terminal.clone())
             }
             Message::KeyEvent(key) => {
                 match key {
@@ -201,7 +201,7 @@ impl StrydeUI {
                           self.selected == index,
                           self.handlers.get(&entry.icon_path).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
                           self.config.icon_size
-                        ).on_press(Message::Open(entry.exec.clone(), self.config.close_on_launch))))
+                        ).on_press(Message::Open(entry.exec.clone(), self.config.close_on_launch, self.config.default_terminal.clone(), entry.terminal.clone()))))
         } // Make a list with all apps
         
         input_with_list(list_column, &self.text, &self.theme(), self.config.input_text_size, self.config.show_apps)

@@ -4,21 +4,26 @@ use freedesktop_icons::lookup;
 use iced::{Task, widget, window::{self}};
 use image::ImageReader;
 
-use crate::{ui::app::{ Message}};
+use crate::{ui::app::Message};
 
-pub fn open_app(entry_exec: String, close_after_launch: bool) -> Task<Message> {
-    let exec = entry_exec.clone();
-    let path = std::path::Path::new(&exec);
-    if path.exists() && path.is_file() {
-        // If file exists, try run it
-        if let Err(e) = std::process::Command::new(path).spawn() {
-            println!("Failed to open {:?}: {}",path, e);
-            // Print error is cannot open
+pub fn open_app(entry_exec: String, close_after_launch: bool, default_terminal: String, terminal: bool) -> Task<Message> {
+    let path = std::path::Path::new(&entry_exec);
+    if terminal {
+        if let Err(e) = std::process::Command::new(default_terminal).arg("-e").arg(&entry_exec).spawn() {
+            println!("Failed to open {:?}: {}", path, e);
         }
-    } else {
-        if let Err(e) = std::process::Command::new("sh").arg("-c").arg(&exec).spawn() {
-           println!("Failed to open {:?}: {}", path, e);
-            // Print error is cannot open 
+    }else {
+        if path.exists() && path.is_file() {
+            // If file exists, try run it
+            if let Err(e) = std::process::Command::new(path).spawn() {
+                println!("Failed to open {:?}: {}",path, e);
+                // Print error is cannot open
+            }
+        } else {
+            if let Err(e) = std::process::Command::new("sh").arg("-c").arg(&entry_exec).spawn() {
+               println!("Failed to open {:?}: {}", path, e);
+                // Print error is cannot open 
+            }
         }
     }
     if close_after_launch {
