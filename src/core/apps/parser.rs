@@ -49,7 +49,7 @@ pub fn parse_data() -> Vec<AppList> {
             };
             let terminal = match &app.terminal {
                 Some(terminal) => terminal.clone(),
-                None => continue
+                None => false
             };
             // Get exec command of the app in .desktop file
 
@@ -64,7 +64,7 @@ pub fn parse_data() -> Vec<AppList> {
                     description: description.unwrap_or_default().default,
                     exec: exec,
                     icon_path: icon_path.unwrap_or_default(),
-                    type_file: "Application".to_string(),
+                    type_file: desktop_file.entry.entry_type.to_string(),
                     terminal: terminal
                 }
             );
