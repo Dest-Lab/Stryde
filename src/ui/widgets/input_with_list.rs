@@ -1,7 +1,7 @@
 use iced::{
     //font::Family,
     Color, Padding, Theme, widget::{
-        Column, Rule, Scrollable, TextInput, column, container, rule::{FillMode, Style}, scrollable::{self, Id, Rail}, text_input::{self}
+        Column, Id, Scrollable, TextInput, column, container, rule::{self, FillMode, Style}, scrollable::{self, AutoScroll, Rail}, text_input::{self}
     }
 };
 
@@ -38,7 +38,7 @@ pub fn input_with_list<'a>(
             TextInput::new(placeholder, text)
                 .on_input(Message::SearchChanged)
                 .on_submit(Message::Submit)
-                .size(config.input_text_size)
+                .size(config.input_text_size as u32)
                 .id("input")
                 .style(move |theme: &Theme, _| {
                     // custom style for input
@@ -63,11 +63,11 @@ pub fn input_with_list<'a>(
                     left: 30.0,
                 }),
             // thin line under search
-            Rule::horizontal(divider_size).style(move |_theme: &Theme| Style {
+            rule::horizontal(divider_size as u32).style(move |_theme: &Theme| Style {
                 color: _theme.palette().success,
-                width: divider_size,
                 radius: iced::border::Radius::new(iced::Pixels(0.0)),
                 fill_mode: FillMode::Full,
+                snap: false
             }),
             // list scroll area (but no scrollbar)
             Scrollable::new(list_column).style(|_theme: &Theme, _| {
@@ -76,17 +76,23 @@ pub fn input_with_list<'a>(
                         background: Some(iced::Background::Color(Color::TRANSPARENT)),
                         border: iced::Border::default(),
                         scroller: scrollable::Scroller {
-                            color: Color::TRANSPARENT,
+                            background: iced::Background::Color(Color::TRANSPARENT),
                             border: iced::Border::default(),
                         },
                     },
                     container: container::Style::default(),
                     gap: Default::default(),
+                    auto_scroll: AutoScroll {
+                        background: iced::Background::Color(Color::TRANSPARENT),
+                        border: Default::default(),
+                        shadow: Default::default(),
+                        icon: Default::default()
+                    },
                     horizontal_rail: Rail {
                         background: Some(iced::Background::Color(Color::TRANSPARENT)),
                         border: iced::Border::default(),
                         scroller: scrollable::Scroller {
-                            color: Color::TRANSPARENT,
+                            background: iced::Background::Color(Color::TRANSPARENT),
                             border: iced::Border::default(),
                         },
                     },
@@ -99,6 +105,7 @@ pub fn input_with_list<'a>(
             text_color: Some(palette.text),
             border: iced::Border::default(),
             shadow: iced::Shadow::default(),
+            snap: false,
         })
         .width(iced::Length::Fill)
         .height(iced::Length::Fill)

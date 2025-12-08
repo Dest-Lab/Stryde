@@ -13,8 +13,8 @@ fn main() -> iced::Result
             antialiasing: false,
             list_text_size: 16,
             input_text_size: 18,
-            app_width: 774.0,
-            app_height: 500.0,
+            app_width: 774,
+            app_height: 500,
             icon_size: 37,
             show_apps: true,
             close_on_launch: true,
@@ -51,6 +51,7 @@ fn main() -> iced::Result
                 primary: iced::Color::from_rgb(137.0/255.0, 180.0/255.0, 250.0/255.0),
                 success: iced::Color::from_rgb(0.306, 0.306, 0.318),
                 danger: iced::Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0),
+                warning: iced::Color::from_rgb(216.0/255.0, 68.0/255.0, 52.0/255.0)
             },
         )
     );

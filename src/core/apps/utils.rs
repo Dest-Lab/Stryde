@@ -27,7 +27,7 @@ pub fn open_app(entry_exec: String, close_after_launch: bool, default_terminal: 
         }
     }
     if close_after_launch {
-        return window::get_latest().and_then(window::close);
+        return window::latest().and_then(window::close);
     }
     Task::none()
 }

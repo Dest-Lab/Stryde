@@ -19,8 +19,8 @@ pub fn list_apps(
             if let Some(svg_handle) = handlers.svg_handler.as_ref() {
                 _content = row![
                     svg(svg_handle.clone())
-                        .width(icon_size)
-                        .height(icon_size),
+                        .width(icon_size as u32)
+                        .height(icon_size as u32),
                     text(name)
                 ]
                 .spacing(10)
@@ -34,8 +34,8 @@ pub fn list_apps(
             // If icon is not svg, use image widget
             if let Some(img_handle) = handlers.image_handler.as_ref() {      
                 _content = row![image(img_handle)
-                    .width(icon_size)
-                    .height(icon_size),
+                    .width(icon_size as u32)
+                    .height(icon_size as u32),
                 text(name)
             ].spacing(10);
             }else {
@@ -80,6 +80,7 @@ pub fn list_apps(
                     },
                     // no shadow change
                     shadow: Shadow::default(),
+                    snap: false
                 },
             )
 }

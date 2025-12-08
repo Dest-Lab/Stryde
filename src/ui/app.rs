@@ -1,6 +1,7 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key, key::Named}, theme::Palette, widget::{Column, scrollable::{self, AbsoluteOffset, Id}, text_input}, window::{self, settings::PlatformSpecific}};
+
+use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key, key::Named}, theme::Palette, widget::{Column, Id, operation::{focus, scroll_to}, scrollable::{AbsoluteOffset}}, window::{self, settings::PlatformSpecific}};
 
 use crate::{core::apps::{model::{AppList, Handler}, utils::open_app}, toml_files::Config, ui::widgets::{input_with_list::input_with_list, list_apps::list_apps}};
 
@@ -13,8 +14,8 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
     };
     let window = window::Settings {
         size: Size {
-            width: settings.app_width,
-            height: settings.app_height,
+            width: settings.app_width as f32,
+            height: settings.app_height as f32,
         },
         // Set window size
         position: window::Position::Centered,
@@ -30,6 +31,7 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         },
         exit_on_close_request: true,
         transparent: true,
+        blur: true,
         min_size: Some(Size {
             width: 774.0,
             height: 500.0,
@@ -37,35 +39,36 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         ..Default::default()
     };
 
-    iced::application("Stryde", StrydeUI::update, StrydeUI::view).settings(Settings {
-        id: Some("stryde".into()),
-        default_text_size: Pixels::from(settings.list_text_size),
-        antialiasing: settings.antialiasing,
-        // simple text render
-        fonts: vec![],
-        default_font: Font {
-                family: iced::font::Family::Name(font_name),
-                weight: iced::font::Weight::Normal,
-                stretch: iced::font::Stretch::Normal,
-                style: iced::font::Style::Normal,
-    }})
-    .window(window)
-    .theme(StrydeUI::theme)
-    .subscription(StrydeUI::subscription)
-    .run_with(move || {
-        let stryde = StrydeUI::new(apps, theme, settings, handlers);
+    let antialiasing = settings.antialiasing.clone();
+    let list_text_size = settings.list_text_size.clone() as u32;
 
-        let focus_task = text_input::focus::<Message>("input");
+    iced::application(
+         move || {
+            let stryde = StrydeUI::new(apps.to_owned(), theme.to_owned(), settings.to_owned(), handlers.to_owned());
+
+        let focus_task = focus::<Message>("input");
         // Auto focus to input_text
 
         let task = Task::batch(vec![
-            window::get_latest().and_then(window::gain_focus),
+            window::latest().and_then(window::gain_focus),
             // Auto focus to app
             focus_task
         ]);
-
         (stryde, task)
-    })
+        },
+        StrydeUI::update, StrydeUI::view).settings(Settings {
+        id: Some("stryde".into()),
+        default_text_size: Pixels::from(list_text_size),
+        antialiasing: antialiasing,
+        vsync: true,
+        // simple text render
+        fonts: vec![],
+        default_font: Font::with_name(font_name)})
+    .window(window)
+    .theme(StrydeUI::theme)
+    .subscription(StrydeUI::subscription)
+    .title("Stryde")
+    .run()
 }
 
 #[derive(Debug, Clone)]
@@ -76,7 +79,6 @@ pub enum Message {
     KeyEvent(Key)
 }
 
-#[derive(Default)]
 pub struct StrydeUI {
     text: String,
     app_list: Vec<AppList>,
@@ -120,6 +122,7 @@ impl StrydeUI {
                 primary: pallete.primary,
                 success: pallete.success,
                 danger: pallete.danger,
+                warning: pallete.warning
             },
         )
     }
@@ -130,7 +133,7 @@ impl StrydeUI {
                 self.text = text;
                 if self.selected != 0 {
                     self.selected = 0;
-                    return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset { x: 0.0, y: 0.0 });
+                    return scroll_to(Id::new("scrollable"), AbsoluteOffset { x: 0.0, y: 0.0 });
                 } 
                     return Task::none();
                 
@@ -148,12 +151,12 @@ impl StrydeUI {
             }
             Message::KeyEvent(key) => {
                 match key {
-                    keyboard::Key::Named(Named::Escape) => return window::get_latest().and_then(window::close),
+                    keyboard::Key::Named(Named::Escape) => return window::latest().and_then(window::close),
                     // If user pressed Escape, close window
                     keyboard::Key::Named(Named::ArrowDown) => {
                         if self.selected+1 < self.app_list.len() {
                             self.selected += 1;
-                            return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset {
+                            return scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
                                 y: self.selected as f32 * (50.0 + self.config.spacing as f32)
                             });
@@ -164,7 +167,7 @@ impl StrydeUI {
                     keyboard::Key::Named(Named::ArrowUp) => {
                         if self.selected > 0 {
                             self.selected -= 1;
-                            return scrollable::scroll_to(Id::new("scrollable"), AbsoluteOffset {
+                            return scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
                                 y:  self.selected as f32 * (50.0 + self.config.spacing as f32)
                             });
@@ -178,7 +181,7 @@ impl StrydeUI {
         }
     }
     fn view(&self) -> iced::Element<'_, Message> {
-        let mut list_column = Column::new().spacing(self.config.spacing).padding(
+        let mut list_column = Column::new().spacing(self.config.spacing as u32).padding(
             Padding {
                 top: self.config.padding_vertical,
                 left: 0.0,

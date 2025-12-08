@@ -1,17 +1,17 @@
 use std::{ffi::OsStr, fs::{self, OpenOptions}, io::Write};
 
-use iced::{Color, Theme, theme::Palette};
+use iced::{Color, Theme, theme::{Palette, palette::Warning}};
 use serde::{Deserialize, Serialize};
 use toml::{from_str, to_string};
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone,)]
 pub struct Config {
     pub theme: String,
     pub antialiasing: bool,
     pub font_name: String,
     pub placeholder: String,
-    pub app_width: f32,
-    pub app_height: f32,
+    pub app_width: u16,
+    pub app_height: u16,
     pub list_text_size: u16,
     pub input_text_size: u16,
     pub icon_size: u16,
@@ -51,8 +51,8 @@ pub fn settings() -> Option<Config>{
             antialiasing: false,
             list_text_size: 16,
             input_text_size: 18,
-            app_width: 774.0,
-            app_height: 500.0,
+            app_width: 774,
+            app_height: 500,
             icon_size: 37,
             show_apps: true,
             close_on_launch: true,
@@ -98,19 +98,23 @@ pub fn read_theme(using_theme: &str) -> Option<iced::Theme>{
                 // Get content
                 let theme: CurrentTheme = from_str(&content).ok()?;
                 // Transform in Struct
+
+                let warning_colors: Warning = Warning::generate(
+                hex_to_rgb(&theme.primary).unwrap_or(iced::Color::from_rgb(137.0/255.0, 180.0/255.0, 250.0/255.0)), // base
+        hex_to_rgb(&theme.background).unwrap_or( Color::from_rgb(0.063, 0.063, 0.071)), // background
+                hex_to_rgb(&theme.text).unwrap_or(Color::WHITE), // text
+                );
+
                 return Some(
                     iced::Theme::custom(
-                       "Stryde".into(),
+                       "Stryde",
                        Palette {
-                        background: Color::parse(&theme.background).unwrap_or(Color::from_rgb(0.063, 0.063, 0.071)),
-                        text: Color::parse(&theme.text).unwrap_or(Color::WHITE),
-                        primary: Color::parse(&theme.primary).unwrap_or(
-                            Color::from_rgb(0.055, 0.122, 0.165)
-                        ),
-                        success: Color::parse(&theme.secondary).unwrap_or(Color::from_rgb(0.306, 0.306, 0.318)),
-                        danger: Color::parse(&theme.selected).unwrap_or(
-                            Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0)
-                        ),
+                        background: hex_to_rgb(&theme.background).unwrap_or(Color::from_rgb(0.063, 0.063, 0.071)),
+                        text: hex_to_rgb(&theme.text).unwrap_or(Color::WHITE),
+                        primary: hex_to_rgb(&theme.primary).unwrap_or(iced::Color::from_rgb(137.0/255.0, 180.0/255.0, 250.0/255.0)),
+                        success: hex_to_rgb(&theme.secondary).unwrap_or(Color::from_rgb(0.306, 0.306, 0.318)),
+                        danger: hex_to_rgb(&theme.selected).unwrap_or(Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0)),
+                        warning: warning_colors.weak.text
                        }
                     )
                 );
@@ -128,8 +132,27 @@ pub fn read_theme(using_theme: &str) -> Option<iced::Theme>{
                 primary: iced::Color::from_rgb(137.0/255.0, 180.0/255.0, 250.0/255.0),
                 success: Color::from_rgb(0.306, 0.306, 0.318),
                 danger: Color::from_rgb(25.0/255.0, 25.0/255.0, 28.0/255.0),
+                warning: Color::from_rgb(216.0/255.0, 68.0/255.0, 52.0/255.0)
             },
         )
     )
     // Return Stryde default theme
+}
+
+fn hex_to_rgb(hex: &str) -> Option<Color> {
+    let hex = hex.trim_start_matches('#');
+    
+    if hex.len() != 6 {
+        println!("small length");
+        return None;
+    }
+
+    let r = u8::from_str_radix(&hex[0..2], 16);
+    let g = u8::from_str_radix(&hex[2..4], 16);
+    let b = u8::from_str_radix(&hex[4..6], 16);
+
+    println!("r {:?}, g {:?}, b {:?}", r, g, b);
+
+
+    return Some(Color::from_rgb(r.ok()? as f32 / 255.0, g.ok()? as f32 / 255.0, b.ok()? as f32 / 255.0))
 }
