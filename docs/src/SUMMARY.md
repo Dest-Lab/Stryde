@@ -5,4 +5,5 @@ Welcome to the Stryde documentation. Here you’ll learn what each setting in th
 ### Jump right in
 
 - [Config file](./config_file.md)
+- [List of keys](./keys.md)
 - [Theme](./theme.md)
