@@ -28,6 +28,6 @@ Application launcher for Linux written in Rust
 * **Instant Search** - Results appear as you type
 * **Custom Themes** - Make a UI with your own colors
 * **Fast Launch** - Launches in ~0.1-0.2s
-* **Lightweight** - ~40 MB Ram usage
+* **Lightweight** - ~20 MB Ram usage
 * **Binary Size** - 16 MB
 * **Wayland & X11 Support**
