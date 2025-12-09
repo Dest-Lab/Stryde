@@ -19,7 +19,7 @@ Application launcher for Linux written in Rust
 
 </div>
 
-<img src="https://github.com/user-attachments/assets/9086d825-570c-42f9-a8bf-65706cdd2017" width="460px">
+![stryde](https://github.com/user-attachments/assets/00bbfec9-240f-49e9-af57-29867d04f096)
 
 <div align="left">
 
