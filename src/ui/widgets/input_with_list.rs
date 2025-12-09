@@ -14,20 +14,20 @@ pub fn input_with_list<'a>(
     config: &Config,
 ) -> iced::Element<'a, Message> {
 
-    let list_column = if config.show_apps == false && text.is_empty() {
+    let list_column = if config.behavior.show_apps == false && text.is_empty() {
        Column::new()
     }else {
         list_column
     };
 
     let palette = theme.palette();
-    let placeholder: &String = if config.placeholder.is_empty() {
+    let placeholder: &String = if config.text.placeholder.is_empty() {
         &"Type commands, search...".to_string()
     } else {
-        &config.placeholder
+        &config.text.placeholder
     };
 
-    let divider_size: u16 = if config.divider {
+    let divider_size: u16 = if config.layout.divider {
         1
     }else {
         0
@@ -37,8 +37,7 @@ pub fn input_with_list<'a>(
             // input box on top
             TextInput::new(placeholder, text)
                 .on_input(Message::SearchChanged)
-                .on_submit(Message::Submit)
-                .size(config.input_text_size as u32)
+                .size(config.text.input_text_size as u32)
                 .id("input")
                 .style(move |theme: &Theme, _| {
                     // custom style for input
