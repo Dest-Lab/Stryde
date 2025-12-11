@@ -10,22 +10,30 @@ use crate::{ui::app::Message};
 
 pub fn open_app(entry_exec: String, close_after_launch: bool, default_terminal: String, terminal: bool) -> Task<Message> {
     let path = std::path::Path::new(&entry_exec);
-    if terminal {
-        if let Err(e) = std::process::Command::new(default_terminal).arg("-e").arg(&entry_exec).spawn() {
-            println!("Failed to open {:?}: {}", path, e);
+    if cfg!(target_os = "linux") {
+        if terminal {
+            if let Err(e) = std::process::Command::new(default_terminal).arg("-e").arg(&entry_exec).spawn() {
+                println!("Failed to open {:?}: {}", path, e);
+            }
+        }else {
+            if path.exists() && path.is_file() {
+                // If file exists, try run it
+                if let Err(e) = std::process::Command::new(path).spawn() {
+                    println!("Failed to open {:?}: {}",path, e);
+                    // Print error is cannot open
+                }
+            } else {
+                if let Err(e) = std::process::Command::new("sh").arg("-c").arg(&entry_exec).spawn() {
+                   println!("Failed to open {:?}: {}", path, e);
+                    // Print error is cannot open 
+                }
+            }
         }
-    }else {
-        if path.exists() && path.is_file() {
-            // If file exists, try run it
-            if let Err(e) = std::process::Command::new(path).spawn() {
-                println!("Failed to open {:?}: {}",path, e);
-                // Print error is cannot open
-            }
-        } else {
-            if let Err(e) = std::process::Command::new("sh").arg("-c").arg(&entry_exec).spawn() {
-               println!("Failed to open {:?}: {}", path, e);
-                // Print error is cannot open 
-            }
+    }
+    else if cfg!(target_os = "windows") {
+        if let Err(e) = std::process::Command::new(path).spawn() {
+            println!("Failed to open {:?}: {}", path, e);
+            // Print error is cannot open
         }
     }
     if close_after_launch {
@@ -87,6 +95,7 @@ pub fn resize_icon(path: &str, size: u32) -> Option<iced::widget::image::Handle>
     Some(widget::image::Handle::from_rgba(resized.width(), resized.height(), resized.into_raw()))
 }
 
+#[cfg(target_os = "linux")]
 pub fn flatpak_apps() -> Option<Vec<PathBuf>> {
     // get desktop files for flatpak apps
     let base = PathBuf::from("/var/lib/flatpak/app");

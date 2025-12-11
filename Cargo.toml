@@ -3,7 +3,6 @@ name = "stryde"
 version = "0.2.0"
 edition = "2024"
 description = "Application launcher for Linux written in Rust"
-license = "MIT"
 repository = "https://github.com/dest-lab/stryde"
 
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -17,6 +16,7 @@ iced = { version = "0.14.0", default-features = false, features = ["tiny-skia", 
 winit = "0.30.12"
 winreg = "0.55.0"
 regex = "1.12.2"
+windows-icons = "0.3.0"
 
 [dependencies]
 dirs = "6.0.0"

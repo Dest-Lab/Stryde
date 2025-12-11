@@ -1,6 +1,8 @@
+use std::path::Path;
 use std::path::PathBuf;
 
 use regex::Regex;
+use windows_icons::get_icon_by_path;
 use winreg::RegKey;
 use winreg::enums::*;
 
@@ -20,6 +22,13 @@ struct Software {
     install_location: String,
     icon: String,
     software_type: SoftwareType,
+}
+
+pub fn load_ico_image(path: &str) -> iced::widget::image::Handle {
+    let img = get_icon_by_path(path).expect("Failed");
+
+    let (width, height) = img.dimensions();
+    iced::widget::image::Handle::from_rgba(width, height, img.into_raw())
 }
 
 fn get_registry_key_hash(key: &RegKey) -> Option<u64> {
@@ -82,8 +91,8 @@ fn get_uninstall_key_programs(
             } else {
                 SoftwareType::Regular
             };
-
-            if matches!(software_type, SoftwareType::SystemComponent) {
+            
+            if software_type == SoftwareType::SystemComponent || software_type == SoftwareType::WindowsInstaller {
                 continue;
             }
 
@@ -151,35 +160,14 @@ fn get_uninstall_key_programs(
 }
 
 pub fn get_windows_apps() -> Option<Vec<AppList>>{
+    let mut installed_programs = Vec::new();
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let hku = RegKey::predef(HKEY_USERS);
 
-    let uninstall_keys = [
-        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
-        r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
-    ];
-
     let classes_key_path = r"SOFTWARE\Classes\Installer\Products";
 
-    let mut installed_programs = Vec::new();
-
-    let classes_key = match hklm.open_subkey(classes_key_path) {
-        Ok(key) => key,
-        Err(_) => {
-            eprintln!("Failed to open classes key.");
-            return None;
-        }
-    };
-    for key_path in &uninstall_keys {
-        if let Ok(uninstall_key) = hklm.open_subkey(key_path) {
-            installed_programs.extend(get_uninstall_key_programs(
-                &uninstall_key,
-                &classes_key,
-                true,
-            ));
-        }
-    }
+    let classes_key = match hklm.open_subkey(classes_key_path) { Ok(key) => key, Err(_) => { eprintln!("Failed to open classes key."); return None; } };
 
     if let Ok(uninstall_key) =
         hkcu.open_subkey(r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall")
@@ -207,14 +195,21 @@ pub fn get_windows_apps() -> Option<Vec<AppList>>{
     let mut apps: Vec<AppList> = Vec::new();
 
     for program in installed_programs {
+        let mut icon_path: &str = &program.icon;
+        if let Some(pos) = program.icon.find(",") {
+            icon_path = &icon_path[..pos];
+        };
+        println!("Icon path {:?}, exec path {:?}", icon_path, program.install_location);
+        if !program.install_location.is_empty() {
         apps.push(AppList {
             name: program.name,
             description: None,
-            exec: Some(program.install_location),
-            icon_path: Some(PathBuf::from(program.icon)),
+            exec: Some(icon_path.into()),
+            icon_path: Some(PathBuf::from(icon_path)),
             type_file: Some("Application".into()),
-            terminal: Some(false)
+            terminal: Some(false),
         });
+    }
     }
     return Some(apps);
 }

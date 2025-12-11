@@ -26,6 +26,7 @@ fn main() -> iced::Result
     );
     let keybinds: Keybinds = string_to_named_key(&config.keybinds);
     let mut icons: HashMap<PathBuf, Handler> = HashMap::new();
+    #[cfg(target_os = "linux")]
     for entry in &apps {
         let ext = entry.icon_path.as_ref().map(|p| p.extension().and_then(|e| e.to_str()).unwrap_or("")).unwrap_or("");
         // Get icon extension like svg or png
@@ -43,6 +44,14 @@ fn main() -> iced::Result
             }
         }
     }
+
+    #[cfg(target_os = "windows")]
+    for entry in &apps {
+        use crate::core::apps::platforms::windows::load_ico_image;
+
+        icons.insert(entry.icon_path.clone().unwrap_or_default(), Handler { image_handler: Some(load_ico_image(entry.icon_path.clone().unwrap_or_default().to_str().unwrap_or_default())), svg_handler: None });
+    }
+
     // Get settings if get any errors put the default one
     let theme = read_theme(&config.theme).unwrap_or(
         iced::Theme::custom(
