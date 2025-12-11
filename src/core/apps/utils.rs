@@ -1,6 +1,8 @@
 use std::{fs, path::{Path, PathBuf}, time::UNIX_EPOCH};
 
+#[cfg(target_os = "linux")]
 use freedesktop_icons::lookup;
+
 use iced::{Task, widget, window::{self}};
 use image::ImageReader;
 
@@ -39,6 +41,7 @@ pub fn last_modified(path: &Path) -> Option<u64> {
     Some(duration.as_secs())
 }
 
+#[cfg(target_os = "linux")]
 pub fn get_icon_path(icon_name: &str) -> Option<PathBuf> {
     // Search direct in breeze for apps
     for size in [32, 48, 64] {

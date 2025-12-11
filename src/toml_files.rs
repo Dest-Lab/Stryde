@@ -221,7 +221,7 @@ pub fn string_to_named_key(string_keybinds: &KeybindsConfig) -> Keybinds {
     map.insert("alt", Named::Alt);
     map.insert("numlock", Named::NumLock);
     map.insert("fn", Named::Fn);
-    map.insert("control", Named::Control);
+    map.insert("ctrl", Named::Control);
     map.insert("shift", Named::Shift);
     map.insert("super", Named::Super);
     map.insert("backspace", Named::Backspace);

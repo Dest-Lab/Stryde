@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::{HashMap}, path::PathBuf};
 
 
 use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key}, theme::Palette, widget::{Column, Id, operation::{focus, scroll_to}, scrollable::{AbsoluteOffset}}, window::{self, settings::PlatformSpecific}};
@@ -26,8 +26,12 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         level: window::Level::AlwaysOnTop,
         // window always on top
         platform_specific: PlatformSpecific {
+            #[cfg(target_os = "linux")]
             application_id: "stryde".into(),
+            #[cfg(target_os = "linux")]
             override_redirect: false,
+
+            ..Default::default()
         },
         exit_on_close_request: true,
         transparent: true,
@@ -171,7 +175,7 @@ impl StrydeUI {
                                 app.name.to_lowercase().contains(&self.text.to_lowercase())
                             }).collect();
 
-                            return open_app(filtered[self.selected].exec.clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), filtered[self.selected].terminal.clone());
+                            return open_app(filtered[self.selected].exec.as_ref().expect("").clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), filtered[self.selected].terminal.clone().unwrap_or(false));
                         }
                         return Task::none()
                     },
@@ -199,13 +203,13 @@ impl StrydeUI {
                 Element::from(
                     list_apps(
                         entry.name.clone(),
-                         entry.exec.clone(),
+                         entry.exec.as_ref().expect("").clone(),
                           self.theme().clone(),
                           self.selected == index,
                           self.config.behavior.highlight_style_text,
-                          self.handlers.get(&entry.icon_path).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
+                          self.handlers.get(entry.icon_path.as_ref().unwrap_or(&PathBuf::from("")).as_path()).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
                           self.config.layout.icon_size,
-                        ).on_press(Message::Open(entry.exec.clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), entry.terminal.clone()))))
+                        ).on_press(Message::Open(entry.exec.as_ref().expect("").clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), entry.terminal.unwrap_or(false).clone()))))
         } // Make a list with all apps
         
         input_with_list(list_column, &self.text, &self.theme(), &self.config)

@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq)]
 pub struct AppList {
     pub name: String,
-    pub description: String,
-    pub exec: String,
-    pub icon_path: std::path::PathBuf,
-    pub type_file: String,
-    pub terminal: bool
+    pub description: Option<String>,
+    pub exec: Option<String>,
+    pub icon_path: Option<std::path::PathBuf>,
+    pub type_file: Option<String>,
+    pub terminal: Option<bool>
 }
 
 #[derive(Clone)]

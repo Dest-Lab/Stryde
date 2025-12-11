@@ -27,15 +27,19 @@ fn main() -> iced::Result
     let keybinds: Keybinds = string_to_named_key(&config.keybinds);
     let mut icons: HashMap<PathBuf, Handler> = HashMap::new();
     for entry in &apps {
-        let ext = entry.icon_path.extension().and_then(|e| e.to_str()).unwrap_or("");
+        let ext = entry.icon_path.as_ref().map(|p| p.extension().and_then(|e| e.to_str()).unwrap_or("")).unwrap_or("");
         // Get icon extension like svg or png
 
         if ext == "svg" {
-            let svg_handler = iced::widget::svg::Handle::from_path(entry.icon_path.clone());
-            icons.insert(entry.icon_path.clone(), Handler { image_handler: None, svg_handler: Some(svg_handler) });
+            if let Some(path) = entry.icon_path.as_ref() {
+                let svg_handler = iced::widget::svg::Handle::from_path(path.clone());
+                icons.insert(path.clone(), Handler { image_handler: None, svg_handler: Some(svg_handler) });
+            }
         }else {
-            if let Some(img) = resize_icon(entry.icon_path.as_path().to_str().unwrap_or_default(), config.layout.icon_size.into()) {
-                icons.insert(entry.icon_path.clone(), Handler { image_handler: Some(img), svg_handler: None });
+            if let Some(path) = entry.icon_path.as_ref() {
+                if let Some(img) = resize_icon(path.as_path().to_str().unwrap_or_default(), config.layout.icon_size.into()) {
+                    icons.insert(path.clone(), Handler { image_handler: Some(img), svg_handler: None });
+                }
             }
         }
     }

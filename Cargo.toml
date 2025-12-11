@@ -2,15 +2,34 @@
 name = "stryde"
 version = "0.2.0"
 edition = "2024"
+description = "Application launcher for Linux written in Rust"
+license = "MIT"
+repository = "https://github.com/dest-lab/stryde"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+iced = { version = "0.14.0", default-features = false, features = ["tiny-skia", "image", "svg", "x11", "wayland", "thread-pool"] }
+winit = { version = "0.30.12", features = ["x11", "wayland"] }
+freedesktop-file-parser = "0.3.1"
+freedesktop-icons = "0.4.0"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+iced = { version = "0.14.0", default-features = false, features = ["tiny-skia", "image", "svg", "thread-pool"] }
+winit = "0.30.12"
+winreg = "0.55.0"
+regex = "1.12.2"
 
 [dependencies]
 dirs = "6.0.0"
-freedesktop-file-parser = "0.3.1"
-freedesktop-icons = "0.4.0"
 bincode = "1.3.3"
 serde = {version = "1.0.228", features = ["derive"]}
-iced = {version = "0.14.0", default-features = false, features = ["tiny-skia", "image", "svg", "x11", "wayland", "thread-pool"]}
+softbuffer = "0.4.6"
 image = "0.25.9"
 toml = "0.9.8"
-softbuffer = "0.4.6"
-winit = { version = "0.30.12", features = ["x11", "wayland"]}
+
+
+[package.metadata.packager]
+name = "stryde"
+version = "0.2.0"
+product-name = "Stryde"
+identifier = "com.dest.stryde"
+before-packaging-command = "cargo build --release"
