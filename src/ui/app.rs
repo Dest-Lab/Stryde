@@ -162,7 +162,10 @@ impl StrydeUI {
                             }
                         }
                         if named_key == self.keybinds_custom.navigation[1] {
-                            if self.selected+1 < self.app_list.len() {
+                             let filtered = self.app_list.iter().filter(|app| {
+                                app.name.to_lowercase().contains(&self.text.to_lowercase())
+                             });
+                            if self.selected+1 < filtered.count() {
                                 self.selected += 1;
                                 return scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
