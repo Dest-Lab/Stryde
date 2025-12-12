@@ -43,6 +43,7 @@ pub struct BehaviorConfig {
     pub close_on_launch: bool,
     pub highlight_style_text: bool,
     pub default_terminal: String,
+    pub close_on_unfocus: bool
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -86,13 +87,13 @@ pub fn settings() -> Option<Config>{
 
             antialiasing: false,
 
-            window: WindowConfig { width: 774, height: 500 },
+            window: WindowConfig { width: 774, height: 500},
 
             text: TextConfig { font_name: " ".into(), list_text_size: 16, input_text_size: 18, placeholder: "Type commands, search...".into() },
 
             layout: LayoutConfig { icon_size: 37, padding_vertical: 0.0, spacing: 5, divider: true },
 
-            behavior: BehaviorConfig { show_apps: true, close_on_launch: true, highlight_style_text: false, default_terminal: "kitty".into() },
+            behavior: BehaviorConfig { show_apps: true, close_on_launch: true, highlight_style_text: false, default_terminal: "kitty".into(), close_on_unfocus: false },
 
             keybinds: KeybindsConfig { close: "escape".into(), open: "enter".into(), navigation: vec!["arrowup".into(), "arrowdown".into()] }
         };

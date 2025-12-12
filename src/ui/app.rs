@@ -1,4 +1,4 @@
-use std::{collections::{HashMap}, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
 
 use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, Theme, event, keyboard::{self, Key}, theme::Palette, widget::{Column, Id, operation::{focus, scroll_to}, scrollable::{AbsoluteOffset}}, window::{self, settings::PlatformSpecific}};
@@ -6,12 +6,14 @@ use iced::{Element, Font, Padding, Pixels, Settings, Size, Subscription, Task, T
 use crate::{core::apps::{model::{AppList, Handler}, utils::open_app}, toml_files::{Config, Keybinds}, ui::widgets::{input_with_list::input_with_list, list_apps::list_apps}};
 
 pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: HashMap<PathBuf, Handler>, keybinds: Keybinds) -> iced::Result{
+
     let font_name = if !settings.text.font_name.is_empty() {
         Box::leak(settings.text.font_name.clone().into_boxed_str())
         // 0.03-0.05 KB memory leak :(
     }else {
         "" // Use default font and no memory leak :)
     };
+
     let window = window::Settings {
         size: Size {
             width: settings.window.width as f32,
@@ -37,8 +39,8 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         transparent: true,
         blur: true,
         min_size: Some(Size {
-            width: 774.0,
-            height: 500.0,
+            width: 100.0,
+            height: 100.0,
         }),
         ..Default::default()
     };
@@ -65,12 +67,12 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
         default_text_size: Pixels::from(list_text_size),
         antialiasing: antialiasing,
         vsync: true,
-        // simple text render
         fonts: vec![],
         default_font: Font::with_name(font_name)})
     .window(window)
     .theme(StrydeUI::theme)
     .subscription(StrydeUI::subscription)
+    .position(window::Position::Centered)
     .title("Stryde")
     .run()
 }
@@ -79,7 +81,8 @@ pub fn run_ui(apps: Vec<AppList>, settings: Config, theme: Theme, handlers: Hash
 pub enum Message {
     SearchChanged(String),
     Open(String, bool, String, bool),
-    KeyEvent(Key)
+    KeyEvent(Key),
+    Unfocused
 }
 
 pub struct StrydeUI {
@@ -112,6 +115,9 @@ impl StrydeUI {
             iced::Event::Keyboard(iced::keyboard::Event::KeyPressed { key, .. }) => {
                 Some(Message::KeyEvent(key))
             }
+            iced::Event::Window(iced::window::Event::Unfocused) => {
+                Some(Message::Unfocused)
+            }
             _ => None,
         })
     }
@@ -134,18 +140,25 @@ impl StrydeUI {
 
     fn update(&mut self, message: Message) -> Task<Message>{
         match message {
+            Message::Unfocused => {
+                if self.config.behavior.close_on_unfocus {
+                    return window::latest().and_then(window::close)
+                }
+                Task::none()
+            }
             Message::SearchChanged(text) => {
                 self.text = text;
                 if self.selected != 0 {
                     self.selected = 0;
                     return scroll_to(Id::new("scrollable"), AbsoluteOffset { x: 0.0, y: 0.0 });
-                } 
-                    return Task::none();
+                }
+                return Task::none();
                 
             }
             Message::Open(entry_exec, close_after_launch, default_terminal, terminal) => {
-                    open_app(entry_exec, close_after_launch, default_terminal, terminal)
+                    open_app(entry_exec, (close_after_launch, default_terminal, terminal))
             }
+            
             Message::KeyEvent(key) => {
                 match key {
                     keyboard::Key::Named(named_key) => {
@@ -162,10 +175,10 @@ impl StrydeUI {
                             }
                         }
                         if named_key == self.keybinds_custom.navigation[1] {
-                             let filtered = self.app_list.iter().filter(|app| {
+                             let filtered: Vec<_> = self.app_list.iter().filter(|app| {
                                 app.name.to_lowercase().contains(&self.text.to_lowercase())
-                             });
-                            if self.selected+1 < filtered.count() {
+                             }).collect();
+                            if self.selected+1 < filtered.len() {
                                 self.selected += 1;
                                 return scroll_to(Id::new("scrollable"), AbsoluteOffset {
                                 x: 0.0,
@@ -178,7 +191,11 @@ impl StrydeUI {
                                 app.name.to_lowercase().contains(&self.text.to_lowercase())
                             }).collect();
 
-                            return open_app(filtered[self.selected].exec.as_ref().expect("").clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), filtered[self.selected].terminal.clone().unwrap_or(false));
+                            let close_on_launch = self.config.behavior.close_on_launch;
+                            let default_terminal = self.config.behavior.default_terminal.clone();
+                            let open_with_terminal = filtered[self.selected].terminal.clone().unwrap_or(false);
+
+                            return open_app(filtered[self.selected].exec.clone().unwrap_or_default(), (close_on_launch, default_terminal, open_with_terminal));
                         }
                         return Task::none()
                     },
@@ -201,19 +218,32 @@ impl StrydeUI {
                 app.name.to_lowercase().contains(&self.text.to_lowercase())
         });
 
+        let close_on_launch = self.config.behavior.close_on_launch;
+        let default_terminal = self.config.behavior.default_terminal.clone();
+
         for (index, entry) in filtered.enumerate() {
-            list_column = list_column.push(
-                Element::from(
-                    list_apps(
-                        entry.name.clone(),
-                         entry.exec.as_ref().expect("").clone(),
-                          self.theme().clone(),
-                          self.selected == index,
-                          self.config.behavior.highlight_style_text,
-                          self.handlers.get(entry.icon_path.as_ref().unwrap_or(&PathBuf::from("")).as_path()).unwrap_or(&Handler { image_handler: None, svg_handler: None }).clone(),
-                          self.config.layout.icon_size,
-                        ).on_press(Message::Open(entry.exec.as_ref().expect("").clone(), self.config.behavior.close_on_launch, self.config.behavior.default_terminal.clone(), entry.terminal.unwrap_or(false).clone()))))
-        } // Make a list with all apps
+            if let Some(exec) = entry.exec.as_ref() {
+                let terminal = entry.terminal.unwrap_or(false);
+                let handler = self.handlers
+                    .get(entry.icon_path.as_ref().unwrap_or(&PathBuf::from("")))
+                    .unwrap_or(&Handler { image_handler: None, svg_handler: None })
+                    .clone();
+
+             let app_element = list_apps(
+                    entry.name.clone(),
+                    exec.clone(),
+                    self.theme.clone(),
+                    self.selected == index,
+                    self.config.behavior.highlight_style_text,
+                    handler,
+                    self.config.layout.icon_size,
+                )
+                .on_press(Message::Open(exec.clone(), close_on_launch, default_terminal.clone(), terminal));
+
+                list_column = list_column.push(Element::from(app_element));
+            }
+        }
+        // Make a list with all apps
         
         input_with_list(list_column, &self.text, &self.theme(), &self.config)
         // Make a input, divider, list

@@ -25,7 +25,7 @@ struct Software {
 }
 
 pub fn load_ico_image(path: &str) -> iced::widget::image::Handle {
-    let img = get_icon_by_path(path).expect("Failed");
+    let img = get_icon_by_path(path).unwrap_or_default();
 
     let (width, height) = img.dimensions();
     iced::widget::image::Handle::from_rgba(width, height, img.into_raw())

@@ -8,11 +8,15 @@ use image::ImageReader;
 
 use crate::{ui::app::Message};
 
-pub fn open_app(entry_exec: String, close_after_launch: bool, default_terminal: String, terminal: bool) -> Task<Message> {
+pub fn open_app(entry_exec: String, config_stuff: (bool, String, bool)) -> Task<Message> {
+    // config_stuff (close on launch, default terminal, open with terminal)
     let path = std::path::Path::new(&entry_exec);
     if cfg!(target_os = "linux") {
-        if terminal {
-            if let Err(e) = std::process::Command::new(default_terminal).arg("-e").arg(&entry_exec).spawn() {
+        if config_stuff.2 // Open with terminal
+        {
+            if let Err(e) = std::process::Command::new(
+                config_stuff.1 // Default terminal
+            ).arg("-e").arg(&entry_exec).spawn() {
                 println!("Failed to open {:?}: {}", path, e);
             }
         }else {
@@ -36,7 +40,8 @@ pub fn open_app(entry_exec: String, close_after_launch: bool, default_terminal: 
             // Print error is cannot open
         }
     }
-    if close_after_launch {
+    if config_stuff.0 // If close app launcher after launch a app
+    {
         return window::latest().and_then(window::close);
     }
     Task::none()

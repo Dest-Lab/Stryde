@@ -33,3 +33,5 @@ version = "0.2.0"
 product-name = "Stryde"
 identifier = "com.dest.stryde"
 before-packaging-command = "cargo build --release"
+
+
